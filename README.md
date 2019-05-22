@@ -1,4 +1,7 @@
-Of note, the archive that this data comes from lives here: [https://github.com/markongithub/bus_data_archive](https://github.com/markongithub/bus_data_archive) (all credit to [@markongithub](https://github.com/markongithub) for this!)
+## DC Bus stuff
+The purpose of this repo is to document projects, ideas, analyses that are based on / involve a historical archive of WMATA bus data.
+
+The archive that this data comes from lives here: [https://github.com/markongithub/bus_data_archive](https://github.com/markongithub/bus_data_archive) (all credit to [@markongithub](https://github.com/markongithub) for this!)
 
 http://busdata-00-us-west-2.s3-website-us-west-2.amazonaws.com/
 
