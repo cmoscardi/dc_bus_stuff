@@ -6,7 +6,7 @@ The archive that this data comes from lives here: [https://github.com/markongith
 http://busdata-00-us-west-2.s3-website-us-west-2.amazonaws.com/
 
 ## Project #1: H Street Bus Lane Pilot
-Let's assess how well the Summer 2019 H Street Bus Lane Pilot went!
+Let's assess how well the Summer 2019 H Street Bus Lane Pilot went! https://ddot.dc.gov/page/h-i-streets-nw-bus-lane-pilot
 
 Take a look in the [h_street_intervention](H street folder). There are two notebooks in there,
 1. `h_street_pilot_explore.ipynb` shows how I computed the geolocation of all bus GPS readouts from H street.
