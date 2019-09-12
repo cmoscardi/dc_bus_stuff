@@ -8,7 +8,7 @@ http://busdata-00-us-west-2.s3-website-us-west-2.amazonaws.com/
 ## Project #1: H Street Bus Lane Pilot
 Let's assess how well the Summer 2019 H Street Bus Lane Pilot went! https://ddot.dc.gov/page/h-i-streets-nw-bus-lane-pilot
 
-Take a look in the [h_street_intervention](H street folder). There are two notebooks in there,
+Take a look in the [H street folder](h_street_intervention). There are two notebooks in there,
 1. `h_street_pilot_explore.ipynb` shows how I computed the geolocation of all bus GPS readouts from H street.
 2. `h_street_analysis.ipynb` shows some really basic analysis I did.
 
