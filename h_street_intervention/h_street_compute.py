@@ -20,20 +20,26 @@ BUSES = ["30N", "30S", "32", "33", "36"]
 
 
 def process_json(fname):
-    with open(fname) as f:
-        data = json.load(f)
-        if set(data.keys()) != set(['BusPositions']):
-            raise Exception("Other keys? {}".format(set(data.keys())))
-        return data['BusPositions']
+    if os.path.getsize(fname) == 0:
+        return []
+    try:
+        with open(fname) as f:
+            data = json.load(f)
+            if set(data.keys()) != set(['BusPositions']):
+                raise Exception("Other keys? {}".format(set(data.keys())))
+            return data['BusPositions']
+    except Exception as e:
+        print(fname, e)
+        return []
     
 def load_day(day):
-    df = pd.concat((pd.DataFrame(process_json(x)) for x in  glob.glob("data/"+day +"/*")), ignore_index=True)
+    df = pd.concat((pd.DataFrame(process_json(x)) for x in  glob.glob("data/"+day +"/*.json")), ignore_index=True)
     garr = gpd.vectorized.points_from_xy(df["Lon"].as_matrix(), df["Lat"].as_matrix())
     df["geometry"] = garr
     gdf = gpd.GeoDataFrame(df)
     gdf.crs = {'init' :'epsg:4326'}
     gdf = gdf.to_crs(epsg=3857)
-    gdf["dt"] = pd.to_datetime(gdf["DateTime"])
+    gdf["dt"] = pd.to_datetime(gdf["DateTime"], errors='coerce')
     return gdf
 
 
@@ -76,26 +82,29 @@ def segment_speed(g):
     return (dist, time.total_seconds(), dist / time.total_seconds(),
             g["corridor"].unique()[0], len(g), g.loc[start_ix]["dt"], g.loc[end_ix]["dt"])
 
+SEGMENT_SPEED_COLUMNS = ['TripID', 'distance', 'time', 'rate', 'corridor', 'n', 'start_t', 'end_t']
+
 
 bad_ids = []
-def main():
+def main(month):
     global bad_ids
     dates = [x for x in os.listdir("data/")\
-             if x.startswith("20") and ".tar.gz" not in x]
+             if x.startswith("2019-{}".format(month)) and ".tar.gz" not in x]
 
-    for date in sorted(dates):
+    for date in sorted(dates)[1:]:
         if date + ".csv" in os.listdir("output"):
             print("skipping date {}...".format(date))
-            continue
+            #continue
         print("Processing date {}".format(date))
         try:
             gdf = load_day(date)
-        except:
+        except Exception as e:
             print("Error in date {}".format(date))
-            continue
+            raise e
         interesting = gdf[gdf["RouteID"].isin(BUSES)]
         bad_ids = []
         results = interesting.groupby("TripID").apply(process_trip)
+        return results
         print("{}/{} processed".format(results.reset_index(level=1).index.nunique(), interesting.TripID.nunique()))
         print("{} bad_ids".format(len(bad_ids)))
         print("=====" * 4)
@@ -105,8 +114,10 @@ def main():
         rst = results.reset_index(level=1)
         del rst["level_1"]
         x = rst.reset_index(drop=True).groupby("TripID").apply(segment_speed).apply(pd.Series).reset_index()
-        x.columns = ['TripID', 'distance', 'time', 'rate', 'corridor', 'n', 'start_t', 'end_t']
+        x.columns = SEGMENT_SPEED_COLUMNS
         x.to_csv("output/{}.csv".format(date))
 
 if __name__ == "__main__":
-    main()
+    import sys
+    month = sys.argv[1]
+    main(month)
