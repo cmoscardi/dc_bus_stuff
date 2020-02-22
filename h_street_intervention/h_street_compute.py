@@ -34,9 +34,8 @@ def process_json(fname):
     
 def load_day(day):
     df = pd.concat((pd.DataFrame(process_json(x)) for x in  glob.glob("data/"+day +"/*.json")), ignore_index=True)
-    garr = gpd.vectorized.points_from_xy(df["Lon"].as_matrix(), df["Lat"].as_matrix())
-    df["geometry"] = garr
-    gdf = gpd.GeoDataFrame(df)
+    garr = gpd.points_from_xy(df["Lon"], df["Lat"])
+    gdf = gpd.GeoDataFrame(df, geometry=garr)
     gdf.crs = {'init' :'epsg:4326'}
     gdf = gdf.to_crs(epsg=3857)
     gdf["dt"] = pd.to_datetime(gdf["DateTime"], errors='coerce')
@@ -44,16 +43,16 @@ def load_day(day):
 
 
 def h_street_filter(g):
-    filt1 = g[(g.geometry.y > 4707350) & (g.geometry.y < 4707450)\
-              & (g.geometry.x > start_gdf.loc[0].x) & (g.geometry.x < start_gdf.loc[1].x)]
+    filt1 = g[(g.geometry.y > 4707380) & (g.geometry.y < 4707450)\
+              & (g.geometry.x > start_gdf.loc[0].geometry.x) & (g.geometry.x < start_gdf.loc[1].geometry.x)]
     if np.abs(filt1.geometry.x.min() - filt1.geometry.x.max()) > 400:
         return filt1
     else:
         return []
 
 def i_street_filter(g):
-    filt1 = g[(g.geometry.y > 4707510) & (g.geometry.y < 4707600)\
-              & (g.geometry.x > start_gdf.loc[0].x) & (g.geometry.x < start_gdf.loc[1].x)]
+    filt1 = g[(g.geometry.y > 4707540) & (g.geometry.y < 4707600)\
+              & (g.geometry.x > start_gdf.loc[0].geometry.x) & (g.geometry.x < start_gdf.loc[1].geometry.x)]
     if np.abs(filt1.geometry.x.min() - filt1.geometry.x.max()) > 400:
         return filt1
     else:
@@ -104,7 +103,6 @@ def main(month):
         interesting = gdf[gdf["RouteID"].isin(BUSES)]
         bad_ids = []
         results = interesting.groupby("TripID").apply(process_trip)
-        return results
         print("{}/{} processed".format(results.reset_index(level=1).index.nunique(), interesting.TripID.nunique()))
         print("{} bad_ids".format(len(bad_ids)))
         print("=====" * 4)

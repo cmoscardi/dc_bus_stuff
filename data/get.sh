@@ -8,6 +8,6 @@ done
 
 
 # now, unzip
-for $fname in `ls *2019*`; do
+for fname in `ls *2019*`; do
     tar -xzf $fname;
 done
